@@ -23,9 +23,10 @@
 	$: gettingLocation = false;
 	$: locationError = null;
 
+	const bb 				= [99.640623, 0.857777, 119.266349, 7.370785];
 	const bbsem 		= [99.640623, 0.857777, 105, 7.370785];
 	const boundsSem = [[bbsem[1],bbsem[0]],[bbsem[3],bbsem[2]]];
-	const boundsSemPadded = [[bbsem[1]-2, bbsem[0]-5],[bbsem[3]+5, bbsem[2]+5]];
+	const boundsPadded = [[bb[1]-2, bb[0]-5],[bb[3]+5, bb[2]+5]];
 
 
 	onMount(async () => {
@@ -40,25 +41,25 @@
 										preferCanvas				: true,
 										attributionControl	: true,
 										trackResize					: true,
-										zoomControl					: false,
-										scrollWheelZoom			: false,
-										doubleClickZoom			: false,
-										dragging						: false,
-										//zoomSnap						: 0.5,
-										//zoomDelta						: .5,
-										//minZoom							: 6,
-										maxBounds						: boundsSemPadded,
+										zoomControl					: !!ll,
+										scrollWheelZoom			: !!ll,
+										doubleClickZoom			: !!ll,
+										dragging						: !!ll,
+										zoomSnap						: 0.5,
+										zoomDelta						: .5,
+										minZoom							: 5,
+										maxBounds						: boundsPadded,
 									});
 
 			if (ll)	{
-				map.setView(ll, 10);
+				map.setView(ll, 12);
 			}else	{
 				map.fitBounds(boundsSem);
 			}
 
 	    mapLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 	        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-	        opacity: 0.4,
+	        opacity: !!ll?1:0.4,
 	    }).addTo(map);
 
 
@@ -75,6 +76,9 @@
 			        .bindPopup("You are within " + radius + " meters from this point").openPopup();
 
 			    L.circle(e.latlng, radius).addTo(map);
+
+			    console.log('e.latlng', e.latlng);
+			   	window.localStorage.setItem('location', [e.latlng.lat,e.latlng.lng].join(','));
 
 			    locationError = null;
 			    gettingLocation = false;
@@ -142,7 +146,7 @@
 
 <div style="width:100vw;height:100vh" bind:this={mapElement}></div>
 
-<div style="z-index:1000;position:absolute;bottom:10px;left:10px;width:90vw;">
+<div style="z-index:1000;position:absolute;top:10px;right:10px;width:90vw;">
 
 	{#if gettingLocation}
 		<ProgressBar/>
