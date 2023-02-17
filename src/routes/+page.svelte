@@ -142,7 +142,7 @@
 
 <div style="width:100vw;height:100vh" bind:this={mapElement}></div>
 
-<div style="z-index:1000;position:absolute;bottom:0px;left:0px;width:100vw;">
+<div style="z-index:1000;position:absolute;bottom:10px;left:10px;width:90vw;">
 
 	{#if gettingLocation}
 		<ProgressBar/>
