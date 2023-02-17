@@ -4,10 +4,10 @@
 
 	import { onMount, onDestroy  } from "svelte"
 	import { browser } from '$app/environment';
-	import * as d3 from "d3"
-	import * as turf from '@turf/turf';
-	import d3comparator from '$lib/d3comparator.js';
-	import moment from 'moment';
+//	import * as d3 from "d3"
+//	import * as turf from '@turf/turf';
+//	import d3comparator from '$lib/d3comparator.js';
+//	import moment from 'moment';
 
 
 	//=====================

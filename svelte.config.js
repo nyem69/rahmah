@@ -5,7 +5,7 @@ import adapter from '@sveltejs/adapter-static';
 const config = {
 	kit: {
 //		adapter: adapter()
-		adapter: adapter({ pages: 'docs', assets: 'docs', fallback: 'app.html', precompress: true }),
+		adapter: adapter({ pages: 'docs', assets: 'docs', fallback: 'index.html', precompress: true }),
 	}
 };
 
