@@ -124,6 +124,13 @@
 		zoomLevel = map.getZoom();
 	}
 
+	function mapZoom(){
+		map.setZoom(zoomLevel)
+	}
+	const debouncedMapZoom = debounce(mapZoom, 50);
+
+
+
 	//=====================
 	// location
 	//=====================
@@ -162,6 +169,7 @@
 	}
 
 
+
 	const ogtitle = "og:title";
 	const ogtitleValue = "Menu Rahmah";
 	const ogdescription = "og:description";
@@ -190,7 +198,9 @@
 	<link type="text/css" rel="stylesheet" href="//libjs.pages.dev/leaflet/1.8.0/leaflet.css"/>
 </svelte:head>
 
-
+<style>
+.leaflet-control-attribution { position: absolute; right: 56px; bottom: 50px; }
+</style>
 
 <div style="width:100vw;height:100vh" bind:this={mapElement}></div>
 
@@ -303,7 +313,7 @@
 {/if}
 
 
-<div style="position:fixed; bottom:10px; left:10px; z-index:1000">
+<div style="position:fixed; bottom:0px; left:0px; z-index:1000;text-align:center; background:#ffffff80; width:100%; padding:24px;">
 	<input type=range min=5 max=20 bind:value={zoomLevel} on:input={()=>{
 		map.setZoom(zoomLevel)
 	}} style="width:300px"/>
