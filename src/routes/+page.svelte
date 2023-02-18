@@ -18,7 +18,8 @@
 	let map;
 	let mapElement;
 	let mapLayer;
-	let ll;
+	let ll=null;
+	let marker;
 
 	$: gettingLocation = false;
 	$: locationError = null;
@@ -89,6 +90,7 @@
     var radius = e.accuracy;
 
     console.log('e.latlng', e.latlng);
+    ll = [e.latlng.lat,e.latlng.lng];
    	window.localStorage.setItem('location', [e.latlng.lat,e.latlng.lng].join(','));
 
     locationError = null;
@@ -102,7 +104,7 @@
 	    L.marker(e.latlng).addTo(map)
 	        .bindPopup("You are within " + radius + " meters from this point").openPopup();
 
-	    L.circle(e.latlng, radius).addTo(map);
+//	    L.circle(e.latlng, radius).addTo(map);
 
     },100);
 
@@ -120,9 +122,11 @@
 	const ogdescriptionValue = "Lokasi Menu Rahmah";
 
 
-	import { Button } from "carbon-components-svelte";
+	import { ButtonSet, Button } from "carbon-components-svelte";
 	import { ProgressBar } from "carbon-components-svelte";
 	import { ToastNotification } from "carbon-components-svelte";
+	import AddFilled from "carbon-icons-svelte/lib/Add.svelte";
+	import CenterCircle from "carbon-icons-svelte/lib/CenterCircle.svelte"
 
 </script>
 
@@ -144,16 +148,75 @@
 
 <div style="width:100vw;height:100vh" bind:this={mapElement}></div>
 
-<div style="z-index:1000;position:absolute;top:10px;right:10px;width:90vw;">
-
+<div style="z-index:1001;position:absolute;top:0px;left:0px;width:100vw;">
 	{#if gettingLocation}
 		<ProgressBar/>
-	{:else}
-		<Button on:click={()=>{
-			gettingLocation=true;
-			map.locate({setView: true, maxZoom: 18});
-		}}>Detect Location</Button>
 	{/if}
+</div>
+
+<div style="z-index:1000;position:absolute;top:0px;right:0px;width:100vw;">
+
+	<ButtonSet>
+
+		{#if gettingLocation}
+		{:else if ll}
+
+
+			<Button kind="danger" on:click={()=>{
+				ll=null;
+				window.localStorage.removeItem('location');
+				if(map) map.remove();
+				window.setTimeout(initMap(),100);
+			}}>
+
+				<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-gps"
+					style="margin-right:6px;"
+					width="44" height="44" viewBox="0 0 24 24"
+					stroke-width="2" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
+				<path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+				<circle cx="12" cy="12" r="9" />
+				<path d="M12 17l-1 -4l-4 -1l9 -4z" />
+				</svg>
+
+				Disable Location</Button>
+
+			<Button on:click={()=>{
+			}}>
+
+				<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-plus"
+				style="margin-right:6px;"
+				width="44" height="44" viewBox="0 0 24 24" stroke-width="2" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
+				<path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+				<circle cx="12" cy="12" r="9" />
+				<line x1="9" y1="12" x2="15" y2="12" />
+				<line x1="12" y1="9" x2="12" y2="15" />
+				</svg>
+
+				Add new location</Button>
+
+		{:else}
+			<Button on:click={()=>{
+				gettingLocation=true;
+				map.locate({setView: true, maxZoom: 18});
+			}}>
+
+				<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-current-location"
+					style="margin-right:6px;"
+					width="44" height="44" viewBox="0 0 24 24" stroke-width="2" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
+				  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+				  <circle cx="12" cy="12" r="3" />
+				  <circle cx="12" cy="12" r="8" />
+				  <line x1="12" y1="2" x2="12" y2="4" />
+				  <line x1="12" y1="20" x2="12" y2="22" />
+				  <line x1="20" y1="12" x2="22" y2="12" />
+				  <line x1="2" y1="12" x2="4" y2="12" />
+				</svg>
+
+				Detect Location</Button>
+		{/if}
+
+
+	</ButtonSet>
 
 </div>
 
