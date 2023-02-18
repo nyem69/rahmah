@@ -36,75 +36,7 @@
 			if (savedLocation) ll = savedLocation.split(',').map(d=>+d);
 
 			L = await import('leaflet');
-
-			map = L.map(mapElement, {
-										preferCanvas				: true,
-										attributionControl	: true,
-										trackResize					: true,
-										zoomControl					: !!ll,
-										scrollWheelZoom			: !!ll,
-										doubleClickZoom			: !!ll,
-										dragging						: !!ll,
-										zoomSnap						: 0.5,
-										zoomDelta						: .5,
-										minZoom							: 5,
-										maxBounds						: boundsPadded,
-									});
-
-			if (ll)	{
-				map.setView(ll, 12);
-			}else	{
-				map.fitBounds(boundsSem);
-			}
-
-	    mapLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-	        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-	        opacity: !!ll?1:0.4,
-	    }).addTo(map);
-
-
-
-
-			//=====================
-			// location
-			//=====================
-
-			function onLocationFound(e) {
-			    var radius = e.accuracy;
-
-			    L.marker(e.latlng).addTo(map)
-			        .bindPopup("You are within " + radius + " meters from this point").openPopup();
-
-			    L.circle(e.latlng, radius).addTo(map);
-
-			    console.log('e.latlng', e.latlng);
-			   	window.localStorage.setItem('location', [e.latlng.lat,e.latlng.lng].join(','));
-
-			    locationError = null;
-			    gettingLocation = false;
-
-			    map.removeLayer(mapLayer);
-			    mapLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-			        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-			        opacity: 1,
-			    }).addTo(map);
-
-			    map.options.dragging = true;
-			    map.options.zoomControl = true;
-
-
-			}
-
-			map.on('locationfound', onLocationFound);
-
-			function onLocationError(e) {
-				locationError = e.message;
-			}
-
-			map.on('locationerror', onLocationError);
-
-
-
+			initMap();
 
 
 		} // browser
@@ -114,6 +46,72 @@
 		if(map) map.remove();
   });
 
+
+
+	//=====================
+	// map
+	//=====================
+	function initMap()	{
+		map = L.map(mapElement, {
+									preferCanvas				: true,
+									attributionControl	: true,
+									trackResize					: true,
+									zoomControl					: !!ll,
+									scrollWheelZoom			: !!ll,
+									doubleClickZoom			: !!ll,
+									dragging						: !!ll,
+									zoomSnap						: 0.5,
+									zoomDelta						: .5,
+									minZoom							: 5,
+									maxBounds						: boundsPadded,
+								});
+
+		if (ll)	{
+			map.setView(ll, 12);
+		}else	{
+			map.fitBounds(boundsSem);
+		}
+
+    mapLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        opacity: !!ll?1:0.4,
+    }).addTo(map);
+
+		map.on('locationfound', onLocationFound);
+		map.on('locationerror', onLocationError);
+	}
+
+	//=====================
+	// location
+	//=====================
+
+	function onLocationFound(e) {
+    var radius = e.accuracy;
+
+    console.log('e.latlng', e.latlng);
+   	window.localStorage.setItem('location', [e.latlng.lat,e.latlng.lng].join(','));
+
+    locationError = null;
+    gettingLocation = false;
+
+    if(map) map.remove();
+    window.setTimeout(()=>{
+
+    	initMap();
+
+	    L.marker(e.latlng).addTo(map)
+	        .bindPopup("You are within " + radius + " meters from this point").openPopup();
+
+	    L.circle(e.latlng, radius).addTo(map);
+
+    },100);
+
+	}
+
+
+	function onLocationError(e) {
+		locationError = e.message;
+	}
 
 
 	const ogtitle = "og:title";
