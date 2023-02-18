@@ -21,13 +21,16 @@
 	let ll=null;
 	let marker;
 
+	$: zoomLevel = 12;
+
 	$: gettingLocation = false;
 	$: locationError = null;
+
 
 	const bb 				= [99.640623, 0.857777, 119.266349, 7.370785];
 	const bbsem 		= [99.640623, 0.857777, 105, 7.370785];
 	const boundsSem = [[bbsem[1],bbsem[0]],[bbsem[3],bbsem[2]]];
-	const boundsPadded = [[bb[1]-2, bb[0]-5],[bb[3]+5, bb[2]+5]];
+	const boundsPadded = [[bb[1], bb[0]],[bb[3], bb[2]]];
 
 
 	onMount(async () => {
@@ -59,18 +62,19 @@
 									preferCanvas				: true,
 									attributionControl	: true,
 									trackResize					: true,
-									zoomControl					: !!ll,
+									zoomControl					: false,
 									scrollWheelZoom			: !!ll,
 									doubleClickZoom			: !!ll,
-									dragging						: !!ll,
+									dragging						: true,
 									zoomSnap						: 0.5,
 									zoomDelta						: .5,
 									minZoom							: 5,
 									maxBounds						: boundsPadded,
+									padding							: [1,1],
 								});
 
 		if (ll)	{
-			map.setView(ll, 12);
+			map.setView(ll, zoomLevel);
 		}else	{
 			map.fitBounds(boundsSem);
 		}
@@ -82,8 +86,14 @@
 
 		map.on('locationfound', onLocationFound);
 		map.on('locationerror', onLocationError);
+		map.on('zoomlevelschange', onZoomChanged);
+		map.on('zoomend', onZoomChanged);
 
 		console.groupEnd('initMap');
+	}
+
+	function onZoomChanged(e) {
+		zoomLevel = map.getZoom();
 	}
 
 	//=====================
@@ -195,7 +205,10 @@
 				console.group('%cAdd new MenuRahmah','color:magenta');
 
 				if (map)	{
-					if (map.getZoom() < 18) map.setView(ll, 19);
+					if (map.getZoom() < 18) {
+						zoomLevel=19;
+						map.setView(ll, zoomLevel);
+					}
 
 			    marker = L.marker(ll).addTo(map)
 						        .bindPopup("menu rahmah")
@@ -222,7 +235,8 @@
 			<Button on:click={()=>{
 				console.group('%cDetect Location','color:magenta');
 				gettingLocation=true;
-				map.locate({setView: true, maxZoom: 18});
+				zoomLevel=18;
+				map.locate({setView: true, maxZoom: zoomLevel});
 				console.groupEnd('Detect Location');
 			}}>
 
@@ -259,3 +273,11 @@
 		/>
 	</div>
 {/if}
+
+
+<div style="position:fixed; bottom:10px; left:10px; z-index:1000">
+	<input type=range min=5 max=20 bind:value={zoomLevel} on:input={()=>{
+		map.setZoom(zoomLevel)
+	}} style="width:300px"/>
+</div>
+
