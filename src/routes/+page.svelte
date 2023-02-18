@@ -33,8 +33,36 @@
 	const boundsPadded = [[bb[1], bb[0]],[bb[3], bb[2]]];
 
 
+
+
+
+	//====================================================================================
+	//
+	//====================================================================================
+	const debounce = (func, delay) => {
+		let timer;
+		return function () {
+			const context = this;
+			const args = arguments;
+			clearTimeout(timer);
+			timer = setTimeout(() => func.apply(context, args), delay);
+		};
+	};
+
+	$: innerwidth=1000;
+	$: innerheight=1000;
+	const resizeGrids = () => {
+		innerwidth = innerWidth;
+		innerheight = innerHeight;
+	};
+	const debouncedResizeWindow = debounce(resizeGrids, 100);
+
+
 	onMount(async () => {
 		if(browser) {
+
+			debouncedResizeWindow();
+			window.addEventListener('resize', debouncedResizeWindow);
 
 			const savedLocation = window.localStorage.getItem('location') || null;
 			if (savedLocation) ll = savedLocation.split(',').map(d=>+d);
