@@ -52,7 +52,9 @@
 	//=====================
 	// map
 	//=====================
-	function initMap()	{
+	function initMap(cb)	{
+		console.group('%cinitMap','color:magenta');
+
 		map = L.map(mapElement, {
 									preferCanvas				: true,
 									attributionControl	: true,
@@ -80,6 +82,8 @@
 
 		map.on('locationfound', onLocationFound);
 		map.on('locationerror', onLocationError);
+
+		console.groupEnd('initMap');
 	}
 
 	//=====================
@@ -87,6 +91,8 @@
 	//=====================
 
 	function onLocationFound(e) {
+		console.group('%conLocationFound','color:magenta');
+
     var radius = e.accuracy;
 
     console.log('e.latlng', e.latlng);
@@ -105,6 +111,8 @@
 	        .bindPopup("You are within " + radius + " meters from this point").openPopup();
 
 //	    L.circle(e.latlng, radius).addTo(map);
+
+			console.groupEnd('onLocationFound');
 
     },100);
 
@@ -163,10 +171,13 @@
 
 
 			<Button kind="danger" on:click={()=>{
+				console.group('%cdisable location','color:magenta');
 				ll=null;
 				window.localStorage.removeItem('location');
 				if(map) map.remove();
-				window.setTimeout(initMap(),100);
+				window.setTimeout(()=>{
+					initMap(()=>{console.groupEnd('disable location')})
+				},100);
 			}}>
 
 				<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-gps"
@@ -181,12 +192,17 @@
 				Disable Location</Button>
 
 			<Button on:click={()=>{
+				console.group('%cAdd new MenuRahmah','color:magenta');
 
-				if (map.getZoom() < 18) map.setView(ll, 19);
+				if (map)	{
+					if (map.getZoom() < 18) map.setView(ll, 19);
 
-		    marker = L.marker(e.latlng).addTo(map)
-					        .bindPopup("menu rahmah")
-					        .openPopup();
+			    marker = L.marker(ll).addTo(map)
+						        .bindPopup("menu rahmah")
+						        .openPopup();
+				}
+
+				console.groupEnd('Add new MenuRahmah');
 
 			}}>
 
@@ -204,8 +220,10 @@
 		{:else}
 
 			<Button on:click={()=>{
+				console.group('%cDetect Location','color:magenta');
 				gettingLocation=true;
 				map.locate({setView: true, maxZoom: 18});
+				console.groupEnd('Detect Location');
 			}}>
 
 				<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-current-location"
