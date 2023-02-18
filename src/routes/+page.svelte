@@ -181,6 +181,13 @@
 				Disable Location</Button>
 
 			<Button on:click={()=>{
+
+				if (map.getZoom() < 18) map.setView(ll, 19);
+
+		    marker = L.marker(e.latlng).addTo(map)
+					        .bindPopup("menu rahmah")
+					        .openPopup();
+
 			}}>
 
 				<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-plus"
@@ -192,9 +199,10 @@
 				<line x1="12" y1="9" x2="12" y2="15" />
 				</svg>
 
-				Add new location</Button>
+				Add new MenuRahmah</Button>
 
 		{:else}
+
 			<Button on:click={()=>{
 				gettingLocation=true;
 				map.locate({setView: true, maxZoom: 18});

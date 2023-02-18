@@ -3,6 +3,8 @@
  	import "carbon-components-svelte/css/all.css";
 	import './styles.css';
 
+	import FakeProgressBar from "$lib/Components/FakeProgressBar.svelte";
+
 </script>
 
 
@@ -19,5 +21,7 @@
 	  <!-- +page.svelte is rendered in this <slot> -->
 		<slot />
 	</main>
+
+	<FakeProgressBar/>
 
 </div>
