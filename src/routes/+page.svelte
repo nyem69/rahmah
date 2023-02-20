@@ -391,6 +391,11 @@
 								.style('fill','crimson')
 					}}
 
+					on:focus={(e)=>{
+						d3.select(e.target)
+								.style('fill','#ff0000')
+					}}
+
 					on:click={(e)=>{
 						//console.log( d3.select(e.target).node() );
 						d3.select(e.target)
@@ -448,9 +453,9 @@
 					</svg>
 				</g>
 
-				<text x="0" y="0" pointer-events="none" transform="translate(0,0)" font-size="2.5vh" fill="#fff">
-					<tspan x="15vw" y="4vh">Menu</tspan>
-					<tspan x="15vw" dy="1em">Rahmah</tspan>
+				<text x="0" y="0" pointer-events="none" transform="translate(90,0)" font-size="2.5vh" fill="#fff">
+					<tspan x="0" y="4vh">Menu</tspan>
+					<tspan x="0" dy="1em">Rahmah</tspan>
 				</text>
 
 
@@ -472,6 +477,11 @@
 						d3.select(e.target)
 							.transition()
 								.style('fill','crimson')
+					}}
+
+					on:focus={(e)=>{
+						d3.select(e.target)
+								.style('fill','#ff0000')
 					}}
 
 					on:click={(e)=>{
@@ -493,9 +503,9 @@
 					</svg>
 				</g>
 
-				<text x="0" y="0" pointer-events="none" transform="translate(0,0)" font-size="2.5vh" fill="#fff">
-					<tspan x="12vw" y="4vh">Enable</tspan>
-					<tspan x="12vw" dy="1em">Lokasi</tspan>
+				<text x="0" y="0" pointer-events="none" transform="translate(70,0)" font-size="2.5vh" fill="#fff">
+					<tspan x="0" y="4vh">Enable</tspan>
+					<tspan x="0" dy="1em">Lokasi</tspan>
 				</text>
 
 			</g>
@@ -516,6 +526,11 @@
 						d3.select(e.target)
 							.transition()
 								.style('fill','crimson')
+					}}
+
+					on:focus={(e)=>{
+						d3.select(e.target)
+								.style('fill','#ff0000')
 					}}
 
 					on:click={(e)=>{
@@ -538,9 +553,9 @@
 				</g>
 
 
-				<text x="0" y="0" pointer-events="none" transform="translate(0,0)" font-size="2.5vh" fill="#fff">
-					<tspan x="12vw" y="4vh">Add</tspan>
-					<tspan x="12vw" dy="1em">Location</tspan>
+				<text x="0" y="0" pointer-events="none" transform="translate(70,0)" font-size="2.5vh" fill="#fff">
+					<tspan x="0" y="4vh">Add</tspan>
+					<tspan x="0" dy="1em">Location</tspan>
 				</text>
 
 			</g>
