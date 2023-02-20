@@ -13,7 +13,7 @@ for my $f(@files)	{
 }
 
 
-open (OUT, ">", "menurahmah.csv") or die $!;
+open (OUT, ">", "menurahmah-01.csv") or die $!;
 print OUT join(",",(qw( url nama alamat daerah jenis mula hingga))) . "\n";
 for my $l(@rows){
 	print OUT '"' . $l->{url} . '"';

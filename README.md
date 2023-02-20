@@ -41,3 +41,21 @@ You can preview the production build with `npm run preview`.
 
 # Cloudflare D1
 
+
+
+# Deploy hook
+
+- https://api.cloudflare.com/client/v4/pages/webhooks/deploy_hooks/2cf6252d-76af-4f4e-b7d2-b1c89df884ff
+
+```
+curl -XPOST https://api.cloudflare.com/client/v4/pages/webhooks/deploy_hooks/2cf6252d-76af-4f4e-b7d2-b1c89df884ff
+{
+  "result": {
+    "id": "bf664313-24e4-4a1d-a810-50639800f300"
+  },
+  "success": true,
+  "errors": [],
+  "messages": []
+}
+
+```

@@ -3,12 +3,15 @@
 
 	export let data;
 
+	console.log('data',data);
 
 	import { onMount, onDestroy  } from "svelte";
 	import { browser } from '$app/environment';
 	import * as d3 from "d3"
 	import * as turf from '@turf/turf';
 	import d3comparator from '$lib/d3comparator.js';
+	import L from 'leaflet';
+
 //	import moment from 'moment';
 
 
@@ -16,12 +19,12 @@
 	//  map
 	//=====================
 
-	let L;
+//	let L;
 	let map;
 	let mapElement;
 	let mapLayer;
-	let ll=null;
 	let marker;
+	let userLocation=null;
 
 	$: zoomLevel = 12;
 
@@ -63,9 +66,9 @@
 			window.addEventListener('resize', debouncedResizeWindow);
 
 			const savedLocation = window.localStorage.getItem('location') || null;
-			if (savedLocation) ll = savedLocation.split(',').map(d=>+d);
+			if (savedLocation) userLocation = savedLocation.split(',').map(d=>+d);
 
-			L = await import('leaflet');
+
 			initMap();
 
 
@@ -89,8 +92,8 @@
 									attributionControl	: true,
 									trackResize					: true,
 									zoomControl					: false,
-									scrollWheelZoom			: !!ll,
-									doubleClickZoom			: !!ll,
+									scrollWheelZoom			: !!userLocation,
+									doubleClickZoom			: !!userLocation,
 									dragging						: true,
 									zoomSnap						: 0.5,
 									zoomDelta						: .5,
@@ -99,21 +102,24 @@
 									padding							: [1,1],
 								});
 
-		if (ll)	{
-			map.setView(ll, zoomLevel);
+		if (userLocation)	{
+			map.setView(userLocation, zoomLevel);
 		}else	{
 			map.fitBounds(boundsSem);
 		}
 
     mapLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        opacity: !!ll?1:0.4,
+        opacity: !!userLocation?1:0.4,
     }).addTo(map);
 
 		map.on('locationfound', onLocationFound);
 		map.on('locationerror', onLocationError);
 		map.on('zoomlevelschange', onZoomChanged);
 		map.on('zoomend', onZoomChanged);
+
+
+		mapMarkerList();
 
 		console.groupEnd('initMap');
 	}
@@ -139,7 +145,7 @@
     var radius = e.accuracy;
 
     console.log('e.latlng', e.latlng);
-    ll = [e.latlng.lat,e.latlng.lng];
+    userLocation = [e.latlng.lat,e.latlng.lng];
    	window.localStorage.setItem('location', [e.latlng.lat,e.latlng.lng].join(','));
 
     locationError = null;
@@ -170,6 +176,153 @@
 	//
 	//====================================================================================
 
+	function mapMarkerList()	{
+		let fName = 'mapMarkerList', dbg=1;
+		console.group('%c'+fName,'color:magenta');
+
+		data.list.forEach(d=>{
+
+			dbg&&console.log('d',d);
+
+			let node = mapPopupContent(d);
+			let markerid = d.id;
+
+			let ll = L.latLng([d.geocoder_latitude, d.geocoder_longitude]);
+			if (d.latitude && d.longitude)	{
+				ll = L.latLng([d.latitude, d.longitude]);
+			}
+
+//			d.draggable = false;
+
+			var popup = L.popup({
+						className:  'marker-'+markerid,
+						offset: L.point(0,-10),
+						minWidth: 200,
+						minHeight: 200,
+						keepInView: false
+					})
+			    .setLatLng(ll)
+			    .setContent( node )
+
+
+			d.marker = L.marker(ll, {
+					radius: 100,
+					riseOnHover:true,
+//					draggable: d.draggable?'true':'false',
+					draggable: !!d.draggable,
+					bubblingMouseEvents: false,
+				})
+				.on('dragend', function(e){
+					dbg&&console.group('%ccircle dragend','color:lime');
+
+					//=====================
+					// update longitude / latitude
+					//=====================
+
+					let position = d.marker[ markerid ].getLatLng();
+					dbg&&console.log('position',position);
+
+					d.latitude = position.lat;
+					d.longitude = position.lng;
+
+					let ll = L.latLng([d.latitude, d.longitude]);
+					let node = mapPopupContent(d);
+					let popup = L.popup({
+								className:  'marker-'+markerid,
+								offset: L.point(0,-10),
+								minWidth: 200,
+								minHeight: 200,
+								keepInView: false
+							})
+					    .setLatLng(ll)
+					    .setContent( node );
+
+					 M.data.markers[ markerid ].bindPopup(popup);
+
+
+					dbg&&console.groupEnd('circle dragend');
+				})
+				.addTo(map)
+				.bindPopup(popup)
+				//.openPopup();
+
+//			d.marker_icon._icon.id = markerid;
+
+		});
+
+		console.groupEnd(fName);
+	}
+
+
+
+	//=====================
+	//
+	//=====================
+	function mapPopupContent(datum) {
+		let fName = 'mapPopupContent', dbg=1;
+		console.group('%c'+fName,'color:magenta');
+
+
+		let node = d3.create('div').datum(datum)
+				.selectChildren('.form').data(d=>[d])
+					.join('div').attr('class','form')
+						.style('width','300px')
+						.call(sel=>{
+
+							sel.selectChildren('table').data(d=>[d])
+								.join('table')
+									.selectChildren('tbody').data(d=>[d])
+										.join('tbody')
+											.call(sel=>{
+
+												let tr=0;
+
+												sel.selectChildren('.tr'+tr++).data(d=>[d])
+													.join('tr')
+														.call(sel=>{
+															sel.selectChildren('.key').data(d=>[d])
+																.join('td').attr('class','key').html('nama')
+															sel.selectChildren('.value').data(d=>[d])
+																.join('td').attr('class','value').html(d=>d.nama)
+														});
+
+												sel.selectChildren('.tr'+tr++).data(d=>[d])
+													.join('tr')
+														.call(sel=>{
+															sel.selectChildren('.key').data(d=>[d])
+																.join('td').attr('class','key').html('alamat')
+															sel.selectChildren('.value').data(d=>[d])
+																.join('td').attr('class','value').html(d=>d.alamat)
+														});
+
+												sel.selectChildren('.tr'+tr++).data(d=>[d])
+													.join('tr')
+														.call(sel=>{
+															sel.selectChildren('.key').data(d=>[d])
+																.join('td').attr('class','key').html('daerah')
+															sel.selectChildren('.value').data(d=>[d])
+																.join('td').attr('class','value').html(d=>d.daerah)
+														});
+
+												sel.selectChildren('.tr'+tr++).data(d=>[d])
+													.join('tr')
+														.call(sel=>{
+															sel.selectChildren('.key').data(d=>[d])
+																.join('td').attr('class','key').html('jenis')
+															sel.selectChildren('.value').data(d=>[d])
+																.join('td').attr('class','value').html(d=>d.jenis)
+														});
+
+											});
+
+
+						})
+
+		console.groupEnd(fName);
+		return node.node();
+	}
+
+
 	//=====================
 	//
 	//=====================
@@ -187,6 +340,11 @@
 	import AddFilled from "carbon-icons-svelte/lib/Add.svelte";
 	import CenterCircle from "carbon-icons-svelte/lib/CenterCircle.svelte"
 
+
+//====================================================================================
+//
+//====================================================================================
+
 </script>
 
 
@@ -200,12 +358,18 @@
 	<meta name="keywords"					  					content={ogdescriptionValue}/>
 	<meta property={ogdescription}		 				 content={ogdescriptionValue}/>
 	<meta itemprop="description" 							content={ogdescriptionValue} property={ogdescription} name="twitter:description" />
-	<link type="text/css" rel="stylesheet" href="//libjs.pages.dev/leaflet/1.8.0/leaflet.css"/>
 </svelte:head>
 
+
+
+
+
 <style>
-.leaflet-control-attribution { position: absolute; right: 56px; bottom: 50px; }
 </style>
+
+
+
+
 
 <div style="width:100vw;height:100vh" bind:this={mapElement}></div>
 
@@ -219,7 +383,8 @@
 
 	<ButtonSet>
 
-		<Button>
+		<Button style="background:#EF5023; font-weight:700">
+
 			<svg xmlns="http://www.w3.org/2000/svg"
 				style="margin-right:12px;"
 				width="97" height="42"
@@ -272,17 +437,24 @@
 		</Button>
 
 		{#if gettingLocation}
-		{:else if ll}
+
+			<div>
+				GettingLocation
+			</div>
+
+		{:else if userLocation}
 
 
-			<Button kind="danger" on:click={()=>{
+			<Button style="background:#EF5023; font-weight:700" on:click={()=>{
 				console.group('%cdisable location','color:magenta');
-				ll=null;
+
+				userLocation=null;
 				window.localStorage.removeItem('location');
 				if(map) map.remove();
 				window.setTimeout(()=>{
 					initMap(()=>{console.groupEnd('disable location')})
 				},100);
+
 			}}>
 
 				<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-gps"
@@ -296,21 +468,26 @@
 
 				Disable Location</Button>
 
-			<Button on:click={()=>{
-				console.group('%cAdd new MenuRahmah','color:magenta');
+			<Button style="background:#EF5023; font-weight:700" on:click={()=>{
+				console.group('%cAdd new location','color:magenta');
+				if (L)	{
+					if (map && userLocation)	{
 
-				if (map)	{
-					if (map.getZoom() < 18) {
-						zoomLevel=19;
-						map.setView(ll, zoomLevel);
+						if (map.getZoom() < 18) {
+							zoomLevel=18;
+							map.setView(userLocation, zoomLevel);
+						}
+
+				    marker = L.marker(userLocation).addTo(map)
+							        .bindPopup("menu rahmah")
+							        .openPopup();
+					}else	{
+						if (!map) console.warn('map undefined', map);
+						if (!userLocation) console.warn('userLocation undefined', userLocation);
 					}
-
-			    marker = L.marker(ll).addTo(map)
-						        .bindPopup("menu rahmah")
-						        .openPopup();
 				}
 
-				console.groupEnd('Add new MenuRahmah');
+				console.groupEnd('Add new location');
 
 			}}>
 
@@ -323,11 +500,11 @@
 				<line x1="12" y1="9" x2="12" y2="15" />
 				</svg>
 
-				Add new MenuRahmah</Button>
+				Add new location</Button>
 
 		{:else}
 
-			<Button on:click={()=>{
+			<Button style="background:#EF5023; font-weight:700" on:click={()=>{
 				console.group('%cDetect Location','color:magenta');
 				gettingLocation=true;
 				zoomLevel=18;
@@ -371,7 +548,7 @@
 
 
 <div style="position:fixed; bottom:0px; left:0px; z-index:1000;text-align:center; background:#ffffff80; width:100%; padding:24px;">
-	<input type=range min=5 max=20 bind:value={zoomLevel} on:input={()=>{
+	<input type=range min=5 max=18 bind:value={zoomLevel} on:input={()=>{
 		map.setZoom(zoomLevel)
 	}} style="width:300px"/>
 </div>
