@@ -160,9 +160,9 @@
 
     	initMap();
 
-	    L.marker(e.latlng).addTo(map)
-	        .bindPopup("You are within " + radius + " meters from this point").openPopup();
-
+//	    L.marker(e.latlng).addTo(map)
+//	        .bindPopup("You are within " + radius + " meters from this point").openPopup();
+//
 //	    L.circle(e.latlng, radius).addTo(map);
 
 			console.groupEnd('onLocationFound');
@@ -201,7 +201,7 @@
 				html: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
 								<defs>
 								  <filter id="fshadow02" filterUnits="objectBoundingBox" x="-50%" y="-50%" width="200%" height="200%">
-								    <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="BlurAlpha"/>
+								    <feGaussianBlur in="SourceAlpha" stdDeviation="1" result="BlurAlpha"/>
 								    <feOffset in="BlurAlpha" dx="1" dy="1" result="OffsetBlurAlpha"/>
 								    <feMerge>
 								      <feMergeNode in="OffsetBlurAlpha"/>
@@ -209,8 +209,8 @@
 								    </feMerge>
 								  </filter>
 								  <radialGradient id="Red" cx="30%" cy="30%" fx="30%" fy="30%" r="50%" gradientUnits="objectBoundingBox">
-    <stop offset="0" style="stop-color:#ff0"/>
-    <stop offset="1" style="stop-color:#f90"/>
+								    <stop offset="0" style="stop-color:#ff0"/>
+								    <stop offset="1" style="stop-color:#f90"/>
 								  </radialGradient>
 								</defs>
 								<circle cx="11" cy="11" r="10" fill="url(#Red)" filter="url(#fshadow02)"/>
@@ -247,13 +247,14 @@
 
 					markerSelected = d;
 
-					//zoomLevel = map.getZoom();
+
 					//map.setView(d.marker._latlng, zoomLevel);
 					//map.setView([d.marker._latlng.lat,d.marker._latlng.lng], zoomLevel);
 					window.setTimeout(()=>{
 //						map.panTo([d.marker._latlng.lat,d.marker._latlng.lng]);
 						map.invalidateSize();
-						map.panTo(d.marker._latlng);
+						zoomLevel = map.getZoom();
+						map.setView(d.marker._latlng, zoomLevel);
 					},100);
 				})
 				.on('dragend', function(e){
