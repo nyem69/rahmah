@@ -820,7 +820,7 @@
 </div>
 -->
 
-	<div style="height:50vh;overflow-y:scroll;">
+	<div style="height:50vh; overflow-y:scroll; overflow-x:hidden;">
 		<table class="bp4-html-table bp4-html-table-striped bp4-interactive">
 			<thead>
 			</thead>
