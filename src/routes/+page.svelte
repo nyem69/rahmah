@@ -387,7 +387,7 @@
 
 
 	$: markerSelected = null;
-
+	$: viewMode = 'map';
 
 //====================================================================================
 //
@@ -416,7 +416,7 @@
 </style>
 
 <nav>
-	<div style="display:flex; flex-wrap:nowrap;width:100vw">
+	<div style="display:flex; flex-wrap:nowrap;width:100vw;height:10vh;">
 		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 30" style="flex:1 1 auto;height:10vh;border:2px outset #999;" >
 			<g transform="translate(0,0)" style="cursor:pointer">
 
@@ -450,12 +450,17 @@
 					on:click={(e)=>{
 						d3.select(e.target)
 								.style('fill','#ff0000')
+
+						viewMode='list';
 					}}
 					on:keydown={(e)=>{
+						viewMode='list';
 					}}
 					on:keyup={(e)=>{
+						viewMode='list';
 					}}
 					on:keypress={(e)=>{
+						viewMode='list';
 					}}
 
 				/>
@@ -703,7 +708,7 @@
 
 
 
-<div style="width:100vw;height:{markerSelected?'40vh':'90vh'}" bind:this={mapElement}></div>
+<div style="width:100vw;height:{viewMode=='list'||markerSelected?'40vh':'90vh'}" bind:this={mapElement}></div>
 
 <div style="z-index:1001;position:absolute;top:9vh;left:0px;width:100vw;">
 	{#if gettingLocation}
@@ -734,3 +739,20 @@
 	}} style="width:300px"/>
 </div>
 -->
+
+{#if viewMode=='list'}
+	<div style="height:50vh;width:100vw;overflow:scroll;">
+		<table class="bp4-html-table bp4-html-table-striped bp4-interactive">
+			<thead>
+			</thead>
+			<tbody>
+				{#each data.list as item}
+					<tr>
+						<td>{item.nama}</td>
+						<td>{item.alamat}</td>
+					</tr>
+				{/each}
+			</tbody>
+		</table>
+	</div>
+{/if}
