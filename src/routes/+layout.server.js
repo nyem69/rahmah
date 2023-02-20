@@ -21,6 +21,10 @@ export async function load() {
 		dbg&&console.log('res', res);
 		data.list = res;
 
+		data.list.forEach(d=>{
+			d.nama.replace(/\\\'/g,"'");
+		});
+
 	});
 
 
