@@ -582,7 +582,7 @@
 			on:keypress={(e)=>{d3.select(e.target).style('background','#ff0000')}}
 		>
 
-			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 170 50" style="max-height:10vh;" pointer-events="none" >
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 170 50" style="max-height:70px;" pointer-events="none" >
 				<g transform="translate(0,0)" style="cursor:pointer">
 
 					<rect x="-200" y="-200" width="1e6" height="1e6" fill="#ffffff00" stroke="#999"/>
@@ -681,7 +681,7 @@
 			on:keypress={(e)=>{d3.select(e.target).style('background','#ff0000')}}
 		>
 
-			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 170 50" style="max-height:10vh;">
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 170 50" style="max-height:70px;">
 				<g transform="translate(0,0)" style="cursor:pointer">
 
 					<rect x="-200" y="-200" width="1e6" height="1e6" fill="#ffffff00" stroke="#999"/>
@@ -714,7 +714,7 @@
 			</svg>
 		</div>
 		<div style="flex:1 1 auto;height:10vh;border:2px outset #999; background:orangered;">
-			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 170 50" style="max-height:10vh;" pointer-events="none" >
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 170 50" style="max-height:70px;" pointer-events="none" >
 
 				<g transform="translate(0,0)" style="cursor:pointer">
 
