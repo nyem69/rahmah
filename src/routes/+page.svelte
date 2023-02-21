@@ -9,7 +9,7 @@
 	import * as d3 from "d3"
 	import * as turf from '@turf/turf';
 	import d3comparator from '$lib/d3comparator.js';
-	import L from 'leaflet';
+//	import L from 'leaflet';
 
 //	import moment from 'moment';
 
@@ -34,7 +34,7 @@
 
 
 
-//	let L;
+	let L;
 	let map;
 	let mapElement;
 	let mapLayer;
@@ -81,7 +81,7 @@
 			const savedLocation = window.localStorage.getItem('location') || null;
 			if (savedLocation) userLocation = savedLocation.split(',').map(d=>+d);
 
-
+			L = await import('leaflet');
 			initMap();
 
 
