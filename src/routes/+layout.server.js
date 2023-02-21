@@ -36,12 +36,6 @@ export async function load() {
   								.select('id,nama,alamat,daerah,latitude,longitude,jenis,geocoder_longitude,geocoder_latitude');
 
 
-  console.log('data' ,data);
-//
-//  let list = data;
-
-//  data = {};
-//  data.list = list;
 
 	//=====================
 	//

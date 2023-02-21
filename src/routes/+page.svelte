@@ -3,7 +3,6 @@
 
 	export let data;
 
-	console.log('data',data);
 
 	import { onMount, onDestroy  } from "svelte";
 	import { browser } from '$app/environment';
@@ -19,9 +18,21 @@
 			f2 = d3.format('.2f'),
 			f3 = d3.format('.3f');
 
+
+	//=====================
+	//  data
+	//=====================
+
+
+	let dbg=0;
+	dbg&&console.log('data',data);
+
+
 	//=====================
 	//  map
 	//=====================
+
+
 
 //	let L;
 	let map;
@@ -87,7 +98,8 @@
 	// map
 	//=====================
 	function initMap(cb)	{
-		console.group('%cinitMap','color:magenta');
+		let fName='initMap', dbg=0;
+		dbg&&console.group('%c'+fName,'color:magenta');
 
 //		d3.select(mapElement)
 //			.style('width',innerwidth+'px')
@@ -127,7 +139,7 @@
 		mapMarkerList();
 		calcDistance();
 
-		console.groupEnd('initMap');
+		dbg&&console.groupEnd(fName);
 	}
 
 	function onZoomChanged(e) {
@@ -169,7 +181,8 @@
 	//=====================
 
 	function onLocationFound(e) {
-		console.group('%conLocationFound','color:magenta');
+		let fName='onLocationFound', dbg=0;
+		dbg&&console.group('%c'+onLocationFound,'color:magenta');
 
     var radius = e.accuracy;
 
@@ -190,7 +203,7 @@
 //
 //	    L.circle(e.latlng, radius).addTo(map);
 
-			console.groupEnd('onLocationFound');
+			dbg&&console.groupEnd(fName);
 
     },100);
 
@@ -206,8 +219,8 @@
 	//====================================================================================
 
 	function mapMarkerList()	{
-		let fName = 'mapMarkerList', dbg=1;
-		console.group('%c'+fName,'color:magenta');
+		let fName = 'mapMarkerList', dbg=0;
+		dbg&&console.group('%c'+fName,'color:magenta');
 
 		data.list.forEach(d=>{
 
@@ -376,7 +389,7 @@
 
 		});
 
-		console.groupEnd(fName);
+		dbg&&console.groupEnd(fName);
 	}
 
 
@@ -479,7 +492,7 @@
 	//
 	//=====================
 	function listClick(d){
-		let fName='listClick', dbg=1;
+		let fName='listClick', dbg=0;
 		console.group('%c'+fName,'color:magenta');
 		console.log('d',d);
 		map.setView(d.marker._latlng,zoomLevel)
@@ -632,79 +645,46 @@
 				</g>
 			</svg>
 		</div>
-		<div style="flex:1 1 auto;height:10vh;border:2px outset #999; background:orangered;">
+		<div style="flex:1 1 auto; height:10vh; border:2px outset #999; background:orangered; cursor:pointer;"
+
+			on:mouseover={(e)=>{ d3.select(e.target).style('background','orange') }}
+			on:focus={(e)=>{ d3.select(e.target).style('background','orange') }}
+
+			on:mouseout={(e)=>{ d3.select(e.target).transition().style('background','orangered') }}
+			on:blur={(e)=>{ d3.select(e.target).transition().style('background','orangered') }}
+
+			on:click={(e)=>{
+
+				d3.select(e.target).style('background','#ff0000')
+
+				if (userLocation)	{
+
+					userLocation=null;
+					window.localStorage.removeItem('location');
+					if(map) map.remove();
+					window.setTimeout(()=>{
+						initMap()
+					},100);
+
+				}else	{
+
+					gettingLocation=true;
+					zoomLevel=12;
+					map.locate({setView: true, maxZoom: zoomLevel});
+
+				}
+
+			}}
+
+			on:keydown={(e)=>{d3.select(e.target).style('background','#ff0000')}}
+			on:keyup={(e)=>{d3.select(e.target).style('background','#ff0000')}}
+			on:keypress={(e)=>{d3.select(e.target).style('background','#ff0000')}}
+		>
+
 			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 170 50" style="max-height:10vh;">
 				<g transform="translate(0,0)" style="cursor:pointer">
 
-
-					<rect x="-200" y="-200" width="1e6" height="1e6" fill="#ffffff00" stroke="#999"
-
-						on:mouseover={(e)=>{
-							d3.select(e.target)
-									.style('fill','orange')
-						}}
-
-
-						on:focus={(e)=>{
-							d3.select(e.target)
-									.style('fill','orange')
-						}}
-
-						on:mouseout={(e)=>{
-							d3.select(e.target)
-								.transition()
-									.style('fill','#ffffff00')
-						}}
-
-						on:blur={(e)=>{
-							d3.select(e.target)
-								.transition()
-									.style('fill','#ffffff00')
-						}}
-
-
-						on:click={(e)=>{
-							console.group('%cclick location','color:magenta');
-
-							d3.select(e.target)
-									.style('fill','#ff0000')
-
-							if (userLocation)	{
-
-								userLocation=null;
-								window.localStorage.removeItem('location');
-								if(map) map.remove();
-								window.setTimeout(()=>{
-									initMap()
-								},100);
-
-							}else	{
-
-								gettingLocation=true;
-								zoomLevel=12;
-								map.locate({setView: true, maxZoom: zoomLevel});
-
-							}
-
-							console.groupEnd('click location');
-						}}
-						on:keydown={(e)=>{
-							d3.select(e.target)
-								.transition()
-									.style('fill','#ff0000')
-						}}
-						on:keyup={(e)=>{
-							d3.select(e.target)
-								.transition()
-									.style('fill','#ff0000')
-						}}
-						on:keypress={(e)=>{
-							d3.select(e.target)
-								.transition()
-									.style('fill','#ff0000')
-						}}
-
-					/>
+					<rect x="-200" y="-200" width="1e6" height="1e6" fill="#ffffff00" stroke="#999"/>
 
 					<g transform="translate(10,0)" pointer-events="none">
 						<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-gps"
@@ -734,7 +714,7 @@
 			</svg>
 		</div>
 		<div style="flex:1 1 auto;height:10vh;border:2px outset #999; background:orangered;">
-			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 170 50" style="max-height:10vh;">
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 170 50" style="max-height:10vh;" pointer-events="none" >
 
 				<g transform="translate(0,0)" style="cursor:pointer">
 
