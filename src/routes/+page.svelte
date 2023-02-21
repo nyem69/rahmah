@@ -147,9 +147,12 @@
 
 	function calcDistance(){
 		let ll = userLocation ? L.latLng(userLocation[0], userLocation[1]) : null;
-		data.list.forEach(d=>{
-			d._distance = ll && d.marker._latlng ? map.distance(ll,d.marker._latlng) : null;
-		});
+		data.list
+			.filter(d=>d.marker)
+			.forEach(d=>{
+				d._distance = ll && d.marker._latlng ? map.distance(ll,d.marker._latlng) : null;
+			});
+
 		if (ll)	{
 			data.list.sort(d3comparator().order(d3.ascending, d=>d._distance))
 		}else	{
@@ -210,160 +213,166 @@
 
 			//dbg&&console.log('d',d);
 
-			let node = mapPopupContent(d);
-			let markerid = +d.id;
+			if ((d.latitude||d.geocoder_latitude) && (d.longitude||d.geocoder_longitude))	{
 
-			let ll = L.latLng([d.geocoder_latitude, d.geocoder_longitude]);
-			if (d.latitude && d.longitude)	{
-				ll = L.latLng([d.latitude, d.longitude]);
-			}
 
-			var myIcon = L.divIcon({
-				className: 'my-div-icon',
-				html: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
-								<defs>
-								  <filter id="fshadow02" filterUnits="objectBoundingBox" x="-50%" y="-50%" width="200%" height="200%">
-								    <feGaussianBlur in="SourceAlpha" stdDeviation="1" result="BlurAlpha"/>
-								    <feOffset in="BlurAlpha" dx="1" dy="1" result="OffsetBlurAlpha"/>
-								    <feMerge>
-								      <feMergeNode in="OffsetBlurAlpha"/>
-								      <feMergeNode in="SourceGraphic"/>
-								    </feMerge>
-								  </filter>
-								  <radialGradient id="Red" cx="30%" cy="30%" fx="30%" fy="30%" r="50%" gradientUnits="objectBoundingBox">
-								    <stop offset="0" style="stop-color:rgb(255,0,0)"/>
-								    <stop offset="1" style="stop-color:rgb(128,0,0)"/>
-								  </radialGradient>
-								  <radialGradient id="Yellow" cx="30%" cy="30%" fx="30%" fy="30%" r="50%" gradientUnits="objectBoundingBox">
-								    <stop offset="0" style="stop-color:rgb(255,255,0)"/>
-								    <stop offset="1" style="stop-color:rgb(128,128,0)"/>
-								  </radialGradient>
-								  <radialGradient id="Orange" cx="30%" cy="30%" fx="30%" fy="30%" r="50%" gradientUnits="objectBoundingBox">
-								    <stop offset="0" style="stop-color:#ff0"/>
-								    <stop offset="1" style="stop-color:#f90"/>
-								  </radialGradient>
-								  <radialGradient id="Cyan" cx="30%" cy="30%" fx="30%" fy="30%" r="50%" gradientUnits="objectBoundingBox">
-								    <stop offset="0" style="stop-color:rgb(0,255,255)"/>
-								    <stop offset="1" style="stop-color:rgb(0,128,128)"/>
-								  </radialGradient>
-								  <radialGradient id="WildStrawberry" cx="30%" cy="30%" fx="30%" fy="30%" r="50%" gradientUnits="objectBoundingBox">
-								    <stop offset="0" style="stop-color:rgb(255,10,155)"/>
-								    <stop offset="1" style="stop-color:rgb(128,5,78)"/>
-								  </radialGradient>
-								  <radialGradient id="Blue" cx="30%" cy="30%" fx="30%" fy="30%" r="50%" gradientUnits="objectBoundingBox">
-								    <stop offset="0" style="stop-color:rgb(0,0,255)"/>
-								    <stop offset="1" style="stop-color:rgb(0,0,128)"/>
-								  </radialGradient>
-								  <radialGradient id="Purple" cx="30%" cy="30%" fx="30%" fy="30%" r="50%" gradientUnits="objectBoundingBox">
-								    <stop offset="0" style="stop-color:rgb(140,35,255)"/>
-								    <stop offset="1" style="stop-color:rgb(70,18,128)"/>
-								  </radialGradient>
-								  <radialGradient id="Lime" cx="30%" cy="30%" fx="30%" fy="30%" r="50%" gradientUnits="objectBoundingBox">
-								    <stop offset="0" style="stop-color:rgb(127,255,0)"/>
-								    <stop offset="1" style="stop-color:rgb(64,128,0)"/>
-								  </radialGradient>
-								  <radialGradient id="Silver" cx="30%" cy="30%" fx="30%" fy="30%" r="50%" gradientUnits="objectBoundingBox">
-								    <stop offset="0" style="stop-color:#fff"/>
-								    <stop offset="1" style="stop-color:#999"/>
-								  </radialGradient>
-								  <radialGradient id="Brown" cx="30%" cy="30%" fx="30%" fy="30%" r="50%" gradientUnits="objectBoundingBox">
-								    <stop offset="0" style="stop-color:#fff"/>
-								    <stop offset="1" style="stop-color:#E18400"/>
-								  </radialGradient>
-								  <radialGradient id="SkyBlue" cx="30%" cy="30%" fx="30%" fy="30%" r="50%" gradientUnits="objectBoundingBox">
-								    <stop offset="0" style="stop-color:#fff"/>
-								    <stop offset="1" style="stop-color:#87CEFA"/>
-								  </radialGradient>
-								  <radialGradient id="Tomato" cx="30%" cy="30%" fx="30%" fy="30%" r="50%" gradientUnits="objectBoundingBox">
-								    <stop offset="0" style="stop-color:#fff"/>
-								    <stop offset="1" style="stop-color:#FF6347"/>
-								  </radialGradient>
-								</defs>
-								<circle cx="11" cy="11" r="10" fill="url(#Orange)" filter="url(#fshadow02)"/>
-							</svg>`
-			});
+				let node = mapPopupContent(d);
+				let markerid = +d.id;
 
-//			d.draggable = false;
+				let ll = L.latLng([d.geocoder_latitude, d.geocoder_longitude]);
+				if (d.latitude && d.longitude)	{
+					ll = L.latLng([d.latitude, d.longitude]);
+				}
 
-			var popup = L.popup({
-						className:  'marker-'+markerid,
-						offset: L.point(0,-10),
-						minWidth: 200,
-						minHeight: 200,
-						keepInView: false
+
+				var myIcon = L.divIcon({
+					className: 'my-div-icon',
+					html: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+									<defs>
+									  <filter id="fshadow02" filterUnits="objectBoundingBox" x="-50%" y="-50%" width="200%" height="200%">
+									    <feGaussianBlur in="SourceAlpha" stdDeviation="1" result="BlurAlpha"/>
+									    <feOffset in="BlurAlpha" dx="1" dy="1" result="OffsetBlurAlpha"/>
+									    <feMerge>
+									      <feMergeNode in="OffsetBlurAlpha"/>
+									      <feMergeNode in="SourceGraphic"/>
+									    </feMerge>
+									  </filter>
+									  <radialGradient id="Red" cx="30%" cy="30%" fx="30%" fy="30%" r="50%" gradientUnits="objectBoundingBox">
+									    <stop offset="0" style="stop-color:rgb(255,0,0)"/>
+									    <stop offset="1" style="stop-color:rgb(128,0,0)"/>
+									  </radialGradient>
+									  <radialGradient id="Yellow" cx="30%" cy="30%" fx="30%" fy="30%" r="50%" gradientUnits="objectBoundingBox">
+									    <stop offset="0" style="stop-color:rgb(255,255,0)"/>
+									    <stop offset="1" style="stop-color:rgb(128,128,0)"/>
+									  </radialGradient>
+									  <radialGradient id="Orange" cx="30%" cy="30%" fx="30%" fy="30%" r="50%" gradientUnits="objectBoundingBox">
+									    <stop offset="0" style="stop-color:#ff0"/>
+									    <stop offset="1" style="stop-color:#f90"/>
+									  </radialGradient>
+									  <radialGradient id="Cyan" cx="30%" cy="30%" fx="30%" fy="30%" r="50%" gradientUnits="objectBoundingBox">
+									    <stop offset="0" style="stop-color:rgb(0,255,255)"/>
+									    <stop offset="1" style="stop-color:rgb(0,128,128)"/>
+									  </radialGradient>
+									  <radialGradient id="WildStrawberry" cx="30%" cy="30%" fx="30%" fy="30%" r="50%" gradientUnits="objectBoundingBox">
+									    <stop offset="0" style="stop-color:rgb(255,10,155)"/>
+									    <stop offset="1" style="stop-color:rgb(128,5,78)"/>
+									  </radialGradient>
+									  <radialGradient id="Blue" cx="30%" cy="30%" fx="30%" fy="30%" r="50%" gradientUnits="objectBoundingBox">
+									    <stop offset="0" style="stop-color:rgb(0,0,255)"/>
+									    <stop offset="1" style="stop-color:rgb(0,0,128)"/>
+									  </radialGradient>
+									  <radialGradient id="Purple" cx="30%" cy="30%" fx="30%" fy="30%" r="50%" gradientUnits="objectBoundingBox">
+									    <stop offset="0" style="stop-color:rgb(140,35,255)"/>
+									    <stop offset="1" style="stop-color:rgb(70,18,128)"/>
+									  </radialGradient>
+									  <radialGradient id="Lime" cx="30%" cy="30%" fx="30%" fy="30%" r="50%" gradientUnits="objectBoundingBox">
+									    <stop offset="0" style="stop-color:rgb(127,255,0)"/>
+									    <stop offset="1" style="stop-color:rgb(64,128,0)"/>
+									  </radialGradient>
+									  <radialGradient id="Silver" cx="30%" cy="30%" fx="30%" fy="30%" r="50%" gradientUnits="objectBoundingBox">
+									    <stop offset="0" style="stop-color:#fff"/>
+									    <stop offset="1" style="stop-color:#999"/>
+									  </radialGradient>
+									  <radialGradient id="Brown" cx="30%" cy="30%" fx="30%" fy="30%" r="50%" gradientUnits="objectBoundingBox">
+									    <stop offset="0" style="stop-color:#fff"/>
+									    <stop offset="1" style="stop-color:#E18400"/>
+									  </radialGradient>
+									  <radialGradient id="SkyBlue" cx="30%" cy="30%" fx="30%" fy="30%" r="50%" gradientUnits="objectBoundingBox">
+									    <stop offset="0" style="stop-color:#fff"/>
+									    <stop offset="1" style="stop-color:#87CEFA"/>
+									  </radialGradient>
+									  <radialGradient id="Tomato" cx="30%" cy="30%" fx="30%" fy="30%" r="50%" gradientUnits="objectBoundingBox">
+									    <stop offset="0" style="stop-color:#fff"/>
+									    <stop offset="1" style="stop-color:#FF6347"/>
+									  </radialGradient>
+									</defs>
+									<circle cx="11" cy="11" r="10" fill="url(#Orange)" filter="url(#fshadow02)"/>
+								</svg>`
+				});
+
+	//			d.draggable = false;
+
+				var popup = L.popup({
+							className:  'marker-'+markerid,
+							offset: L.point(0,-10),
+							minWidth: 200,
+							minHeight: 200,
+							keepInView: false
+						})
+				    .setLatLng(ll)
+				    .setContent( node )
+
+
+				d.marker = L.marker(ll, {
+						radius: 100,
+						riseOnHover:true,
+	//					draggable: d.draggable?'true':'false',
+						draggable: !!d.draggable,
+						bubblingMouseEvents: false,
+						icon: myIcon
 					})
-			    .setLatLng(ll)
-			    .setContent( node )
+					.on('mouseover', function(e){
+						d3.select('#'+e.target._icon.id).select('circle').style('fill','url(#Red)')
+					})
+					.on('mouseout', function(e){
+						d3.select('#'+e.target._icon.id).select('circle').style('fill','url(#Orange)')
+					})
+					.on('click', function(e){
+						//console.log('e',e)
+						//console.log('e.target._icon.id', e.target._icon.id);
+						let id = +e.target._icon.id.split('-')[1];
+						let d = data.list.find(k=>k.id==id);
+						console.log('d', d, d.marker._latlng);
+
+						markerSelected = d;
 
 
-			d.marker = L.marker(ll, {
-					radius: 100,
-					riseOnHover:true,
-//					draggable: d.draggable?'true':'false',
-					draggable: !!d.draggable,
-					bubblingMouseEvents: false,
-					icon: myIcon
-				})
-				.on('mouseover', function(e){
-					d3.select('#'+e.target._icon.id).select('circle').style('fill','url(#Red)')
-				})
-				.on('mouseout', function(e){
-					d3.select('#'+e.target._icon.id).select('circle').style('fill','url(#Orange)')
-				})
-				.on('click', function(e){
-					//console.log('e',e)
-					//console.log('e.target._icon.id', e.target._icon.id);
-					let id = +e.target._icon.id.split('-')[1];
-					let d = data.list.find(k=>k.id==id);
-					console.log('d', d, d.marker._latlng);
+						//map.setView(d.marker._latlng, zoomLevel);
+						//map.setView([d.marker._latlng.lat,d.marker._latlng.lng], zoomLevel);
+						window.setTimeout(()=>{
+	//						map.panTo([d.marker._latlng.lat,d.marker._latlng.lng]);
+							map.invalidateSize();
+							zoomLevel = map.getZoom();
+							map.setView(d.marker._latlng, zoomLevel);
+						},100);
+					})
+					.on('dragend', function(e){
+						dbg&&console.group('%ccircle dragend','color:lime');
 
-					markerSelected = d;
+						//=====================
+						// update longitude / latitude
+						//=====================
 
+						let position = d.marker[ markerid ].getLatLng();
+						dbg&&console.log('position',position);
 
-					//map.setView(d.marker._latlng, zoomLevel);
-					//map.setView([d.marker._latlng.lat,d.marker._latlng.lng], zoomLevel);
-					window.setTimeout(()=>{
-//						map.panTo([d.marker._latlng.lat,d.marker._latlng.lng]);
-						map.invalidateSize();
-						zoomLevel = map.getZoom();
-						map.setView(d.marker._latlng, zoomLevel);
-					},100);
-				})
-				.on('dragend', function(e){
-					dbg&&console.group('%ccircle dragend','color:lime');
+						d.latitude = position.lat;
+						d.longitude = position.lng;
 
-					//=====================
-					// update longitude / latitude
-					//=====================
+						let ll = L.latLng([d.latitude, d.longitude]);
+						let node = mapPopupContent(d);
+						let popup = L.popup({
+									className:  'marker-'+markerid,
+									offset: L.point(0,-10),
+									minWidth: 200,
+									minHeight: 200,
+									keepInView: false
+								})
+						    .setLatLng(ll)
+						    .setContent( node );
 
-					let position = d.marker[ markerid ].getLatLng();
-					dbg&&console.log('position',position);
-
-					d.latitude = position.lat;
-					d.longitude = position.lng;
-
-					let ll = L.latLng([d.latitude, d.longitude]);
-					let node = mapPopupContent(d);
-					let popup = L.popup({
-								className:  'marker-'+markerid,
-								offset: L.point(0,-10),
-								minWidth: 200,
-								minHeight: 200,
-								keepInView: false
-							})
-					    .setLatLng(ll)
-					    .setContent( node );
-
-					 //M.data.markers[ markerid ].bindPopup(popup);
+						 //M.data.markers[ markerid ].bindPopup(popup);
 
 
-					dbg&&console.groupEnd('circle dragend');
-				})
-				.addTo(map)
-//				.bindPopup(popup)
-				//.openPopup();
+						dbg&&console.groupEnd('circle dragend');
+					})
+					.addTo(map)
+	//				.bindPopup(popup)
+					//.openPopup();
 
-			d.marker._icon.id = 'marker-'+markerid;
+				d.marker._icon.id = 'marker-'+markerid;
+
+			}
 
 		});
 
@@ -451,7 +460,7 @@
 		d3.select('#marker-'+d.id)
 			.select('circle').attr('fill','url(#Red)');
 
-		console.log(d3.select('#marker-'+d.id).node());
+		//console.log(d3.select('#marker-'+d.id).node());
 
 		// bringToFront()
 		// - doesn't work
@@ -466,10 +475,35 @@
 
 	}
 
+	//=====================
+	//
+	//=====================
 	function listClick(d){
+		let fName='listClick', dbg=1;
+		console.group('%c'+fName,'color:magenta');
 		console.log('d',d);
 		map.setView(d.marker._latlng,zoomLevel)
+
+		// calculate distance
+		let ll = d.marker._latlng;
+		data.list
+			.filter(d=>d.marker)
+			.forEach(d=>{
+				d._distance = ll && d.marker._latlng ? map.distance(ll,d.marker._latlng) : null;
+			});
+		if (ll)	{
+			data.list.sort(d3comparator().order(d3.ascending, d=>d._distance))
+		}else	{
+			data.list.sort(d3comparator().order(d3.ascending, d=>d.nama))
+		}
+
+		// force reactive
+		// https://svelte.dev/tutorial/updating-arrays-and-objects
+		data.list = data.list;
+
+		console.groupEnd(fName);
 	}
+
 
 	function listOut(d){
 		d3.select('#marker-'+d.id).select('circle').attr('fill','url(#Orange)');
@@ -823,6 +857,11 @@
 	<div style="height:50vh; overflow-y:scroll; overflow-x:hidden;">
 		<table class="bp4-html-table bp4-html-table-striped bp4-interactive">
 			<thead>
+				<tr>
+					<th style="position:sticky; top:0; background:#f7f7f7; ">jarak</th>
+					<th style="position:sticky; top:0; background:#f7f7f7; ">nama</th>
+					<th style="position:sticky; top:0; background:#f7f7f7; ">alamat</th>
+				</tr>
 			</thead>
 			<tbody>
 				{#each sortedList as d}
@@ -833,17 +872,14 @@
 						on:mouseout={()=>{ listOut(d) }}
 						on:blur={()=>{ listOut(d) }}
 
-						on:click={()=>{ listClick(d) }}
+
 						on:click={()=>{ listClick(d) }}
 						on:keydown={(e)=>{ listClick(d) }}
 						on:keyup={(e)=>{ }}
 						on:keypress={(e)=>{ listClick(d) }}
 
-
 						>
-						{#if d._distance}
-							<td>{f1(d._distance/1000)}km</td>
-						{/if}
+						<td>{d._distance ? f1(d._distance/1000)+'km' : ''}</td>
 						<td>{d.nama}</td>
 						<td>{d.alamat}</td>
 					</tr>
